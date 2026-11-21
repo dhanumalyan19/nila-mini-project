@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Nila — Radiation Assessment and Action Planner{% endblock %}</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    {% block head %}{% endblock %}
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header>
+      <div><a href="{{ url_for('main.index') }}" class="brand">Nila</a><span>Radiation Assessment and Action Planner</span></div>
+      <nav aria-label="Main navigation">
+        {% if g.officer %}
+          <a href="{{ url_for('buildings.index') }}">Building register</a>
+          <a href="{{ url_for('maps.index') }}">Map &amp; coverage</a>
+          <a href="{{ url_for('imports.index') }}">Import data</a>
+          <a href="{{ url_for('planner.index') }}">Assessment planner</a>
+          <a href="{{ url_for('workflow.index') }}">Review &amp; actions</a>
+          <span>{{ g.officer.display_name }}</span>
+          <form action="{{ url_for('auth.logout') }}" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="quiet" type="submit">Sign out</button></form>
+        {% else %}<a href="{{ url_for('auth.login') }}">Officer sign in</a>{% endif %}
+        <a href="{{ url_for('public.localities') }}">Locality information</a>
+      </nav>
+    </header>
+    <main id="main">
+      {% for category, message in get_flashed_messages(with_categories=true) %}<p class="notice {{ category }}" role="status">{{ message }}</p>{% endfor %}
+      {% block content %}{% endblock %}
+    </main>
+    <footer>Decision support for qualified assessment. Nila does not diagnose health conditions or certify buildings as safe.</footer>
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

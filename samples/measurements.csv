@@ -1,0 +1,4 @@
+record_key,building_code,survey_location_code,track,measurement_type,unit,value,started_at,ended_at,duration_seconds,instrument,source,record_status,notes,is_synthetic
+IMPORT-DEMO-RADON-1,NILA-DEMO-B001,,indoor_radon,indoor_radon_concentration,Bq/m3,42.500000,2026-09-01T09:00:00Z,2026-09-02T09:00:00Z,86400,Fictional detector,Nila synthetic import exercise,submitted,Synthetic short-duration observation; not a long-term exposure estimate.,true
+IMPORT-DEMO-GAMMA-1,,IMPORT-DEMO-POINT-1,regional_radiation,ambient_gamma_dose_rate,uSv/h,0.120000,2026-09-01T09:00:00Z,,300,Fictional gamma meter,Nila synthetic import exercise,submitted,Synthetic survey-point reading; not indoor radon.,true
+IMPORT-DEMO-UNKNOWN-1,NILA-DEMO-B002,,indoor_radon,indoor_radon_concentration,Bq/m3,,,,,,Nila synthetic import exercise,incomplete,Value and measurement timing are unknown; supporting information is needed.,true

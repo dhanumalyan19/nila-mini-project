@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% from 'buildings/evidence.html' import measurement_table with context %}
+{% block title %}{{ building.code }} — Nila{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('buildings.index') }}">Back to building register</a></p>
+<div class="page-heading"><div><h1>{{ building.name }}</h1><p>{{ building.code }} · {{ building.ward.name }} · <span class="tag">{{ 'Synthetic demo — fictional building' if building.is_synthetic else 'Officer-entered record' }}</span></p></div><a class="button" href="{{ url_for('buildings.edit', building_id=building.id) }}">Edit building</a></div>
+{% if building.is_synthetic %}<p class="notice">This is fictional demonstration data. It does not describe a real building, survey or locality.</p>{% endif %}
+<section><h2>Building information</h2><dl class="facts">
+{% for label, value in [('Location', building.address), ('Building use', building.building_use|label), ('Construction year', building.construction_year), ('Occupied floors', building.occupied_floors), ('Ground-contact rooms', building.ground_contact_rooms), ('Ventilation', building.ventilation|label), ('Approximate occupancy', building.approximate_occupancy), ('Hours of use per day', building.hours_of_use_per_day), ('Latitude', building.latitude), ('Longitude', building.longitude)] %}<div><dt>{{ label }}</dt><dd>{{ value|known }}</dd></div>{% endfor %}
+</dl><h3>Officer-only notes</h3><p class="preserve">{{ building.private_notes|known }}</p></section>
+<section><h2>Information gaps</h2><p>{{ missing|join(', ') if missing else 'Basic building fields are present; measurement coverage and quality still require separate review.' }}</p></section>
+<section><h2>Assessment tracks</h2><p>Priority, evidence availability and workflow are independent. A priority label is not a radiation measurement.</p>
+{% for case in cases %}<article class="track"><h3>{{ case.track|label }}</h3><dl class="facts">
+<div><dt>Screening priority</dt><dd>{{ case.priority_band|label }}</dd></div><div><dt>Evidence</dt><dd>{{ case.evidence_status|label }}</dd></div><div><dt>Workflow</dt><dd>{{ case.workflow_status|label }}</dd></div><div><dt>Scheduling</dt><dd>{{ case.scheduling_status|label }}</dd></div><div><dt>Waiting since (UTC)</dt><dd>{{ case.waiting_since }}</dd></div><div><dt>Required by (UTC)</dt><dd>{{ case.required_by|known }}</dd></div><div><dt>Permission to wait</dt><dd>{{ 'Unknown — qualified review needed' if case.waiting_allowed is none else 'Reviewed: allowed' if case.waiting_allowed else 'Reviewed: not allowed' }}</dd></div>
+</dl><p><strong>Reason:</strong> {{ case.priority_reason }}</p>
+{% if case.rule_version_id %}<p><strong>Rule:</strong> {{ rules[case.rule_version_id].key }} · {{ rules[case.rule_version_id].validation_status|label }}<br>{{ rules[case.rule_version_id].applicability }}</p>{% else %}<p>No screening rule has been applied.</p>{% endif %}
+<p><strong>Responsible officer:</strong> {{ officers[case.responsible_officer_id].display_name if case.responsible_officer_id in officers else 'Unassigned' }}</p><p><strong>Next action:</strong> {{ case.next_action }}</p>
+{% set f = forms[case.track] %}<details><summary>Update officer and next action</summary><form method="post" action="{{ url_for('buildings.assignment', building_id=building.id, track=case.track) }}">
+{{ f.hidden_tag() }}<div class="field"><label for="{{ case.track }}-officer">Responsible officer</label>{{ f.responsible_officer_id(id=case.track ~ '-officer') }}</div><div class="field"><label for="{{ case.track }}-next">Next action</label>{{ f.next_action(id=case.track ~ '-next') }}</div><div class="field"><label for="{{ case.track }}-reason">Reason for assignment update</label>{{ f.reason(id=case.track ~ '-reason') }}</div><button type="submit">Update {{ case.track|label }} assignment</button></form></details>
+</article>{% else %}<p class="empty">No assessment cases recorded. An officer needs to register the assessment tracks.</p>{% endfor %}</section>
+<section><h2>Building measurement history</h2><p>Read each quantity with its own unit, duration and quality status. A short observation is not a long-term exposure estimate.</p>{{ measurement_table(measurements) }}</section>
+<section><h2>Regional survey context</h2><p>Area associations provide context only. Survey readings below are not measurements taken at this building and are never converted into indoor radon.</p>
+{% for link, area in links %}<article class="track"><h3>{{ area.name }}</h3><p>{{ area.geological_context }}</p><p>Source: {{ area.source }} · {{ area.observed_on }} · {{ 'Synthetic' if area.is_synthetic else 'Survey record' }}</p><p>Association: {{ link.association_method|label }} · {{ link.source }}</p><p>{{ link.notes }}</p></article>{% else %}<p class="empty">No survey area is associated. The geographic association workflow arrives in Phase 5.</p>{% endfor %}
+{% if links %}{{ measurement_table(survey_measurements) }}{% endif %}</section>
+<section><h2>Recent record changes</h2>{% if audits %}<ul class="history">{% for event in audits %}<li><strong>{{ event.event_type|label }}</strong> · {{ event.created_at }} UTC<p>{{ event.reason }}</p></li>{% endfor %}</ul>{% else %}<p>No officer changes recorded for this building yet.</p>{% endif %}</section>
+{% endblock %}

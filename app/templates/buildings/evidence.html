@@ -1,0 +1,5 @@
+{% macro measurement_table(records) %}
+{% if records %}<div class="table-scroll" role="region" aria-label="Measurement records" tabindex="0"><table><thead><tr><th scope="col">Track / quantity</th><th scope="col">Reading</th><th scope="col">Time / duration (UTC)</th><th scope="col">Source / quality</th><th scope="col">Notes</th></tr></thead><tbody>
+{% for m in records %}<tr><td>{{ m.track|label }}<small>{{ m.measurement_type|label }}<br>{{ m.record_key }}</small></td><td>{{ m.value|known }} {{ m.unit }}<small>{{ 'Synthetic' if m.is_synthetic else 'Measured record' }} · {{ m.record_status|label }}</small></td><td>{{ m.started_at|known }}<small>End: {{ m.ended_at|known }}<br>Duration: {{ m.duration_seconds|known }} seconds</small></td><td>{{ m.source }}<small>{{ m.instrument|known }}<br>Quality: {{ m.quality_status|label }}</small></td><td>{{ m.notes }}</td></tr>{% endfor %}
+</tbody></table></div>{% else %}<p class="empty">No measurement records available. This is a coverage gap, not evidence of safety.</p>{% endif %}
+{% endmacro %}

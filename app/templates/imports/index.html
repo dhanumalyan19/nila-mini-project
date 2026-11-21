@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% from "forms.html" import field %}
+{% block title %}Import data — Nila{% endblock %}
+{% block content %}
+<h1>Import data</h1>
+<p class="reading-width">Preview a file before saving. Invalid records stay out of the database; valid records are saved only after you confirm with a reason. Existing evidence is never overwritten.</p>
+<div class="import-layout">
+  <form method="post" enctype="multipart/form-data" class="narrow-form">
+    {{ form.hidden_tag() }}
+    {{ field(form.kind) }}
+    {{ field(form.upload, 'UTF-8 text; request limit 2 MB. Up to 500 CSV records or 100 GeoJSON features.') }}
+    <button type="submit">Preview import</button>
+  </form>
+  <aside aria-labelledby="samples-heading">
+    <h2 id="samples-heading">Start with a sample</h2>
+    <p>All sample records are fictional. Seed the demo first; then import areas, survey locations, and measurements in that order.</p>
+    <ul class="sample-links">
+      <li><a href="{{ url_for('imports.sample', sample='areas') }}">Survey areas · GeoJSON</a></li>
+      <li><a href="{{ url_for('imports.sample', sample='locations') }}">Survey locations · CSV</a></li>
+      <li><a href="{{ url_for('imports.sample', sample='measurements') }}">Measurements · CSV</a></li>
+      <li><a href="{{ url_for('imports.sample', sample='invalid-measurements') }}">Try row errors · CSV</a></li>
+    </ul>
+  </aside>
+</div>
+<section aria-labelledby="contract-heading">
+  <h2 id="contract-heading">Before you upload</h2>
+  <p class="reading-width">Keep headers and units exactly as supplied. Blank optional values remain unknown. Dates require a time zone (for example <code>2026-09-01T09:00:00Z</code>). New evidence always starts unreviewed; an import does not change screening priority or establish long-term exposure.</p>
+  <div class="table-scroll" role="region" aria-label="Measurement catalogue" tabindex="0"><table>
+    <thead><tr><th>Assessment track</th><th>Measurement type</th><th>Exact unit</th></tr></thead>
+    <tbody>{% for kind in catalogue %}<tr><td>{{ kind.track }}</td><td>{{ kind.measurement_type }}</td><td><code>{{ kind.unit }}</code></td></tr>{% endfor %}</tbody>
+  </table></div>
+  <p>GeoJSON uses <code>[longitude, latitude]</code> in WGS84. Polygon boundaries count as context; holes do not. Real and synthetic records cannot be linked. See <code>docs/import-guide.md</code> for the complete contract.</p>
+</section>
+<section aria-labelledby="history-heading">
+  <h2 id="history-heading">Your recent imports</h2>
+  <ul class="history">{% for batch in history %}<li><a href="{{ url_for('imports.preview', batch_id=batch.id) }}">Import {{ batch.id }} · {{ batch.kind|label }}</a> — {{ batch.status|label }}<small>{{ batch.created_at }} UTC</small></li>{% else %}<li>No previews yet. Choose a sample or your own file above.</li>{% endfor %}</ul>
+</section>
+{% endblock %}

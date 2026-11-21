@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% from "forms.html" import field %}
+{% block title %}Equipment bookings — Nila{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h1>Equipment bookings</h1><p>Reserve actual assessment equipment over time; a device is not assumed available tomorrow.</p></div><a href="{{ url_for('planner.index') }}">Assessment planner</a></div>
+<p class="notice">Times are UTC. Nila prevents overlaps with active reserved/in-use bookings for the same resource. Returned and cancelled bookings do not block a new interval.</p>
+<form method="post" class="narrow-form">{{ form.hidden_tag() }}{{ field(form.equipment_id) }}{{ field(form.case_id) }}<div class="form-grid">{{ field(form.starts_at) }}{{ field(form.ends_at) }}</div>{{ field(form.notes) }}{{ field(form.reason) }}<button type="submit">Reserve equipment</button></form>
+<section aria-labelledby="bookings-heading"><h2 id="bookings-heading">All bookings</h2><div class="table-scroll" role="region" aria-label="Equipment bookings" tabindex="0"><table><thead><tr><th>Equipment</th><th>Case</th><th>Interval (UTC)</th><th>Status</th><th>Notes</th></tr></thead><tbody>{% for booking, equipment, case in bookings %}<tr><td>{{ equipment.code }}<small>{{ equipment.track|label }}</small></td><td>{{ case.id }} · building {{ case.building_id }}</td><td>{{ booking.starts_at }} to {{ booking.ends_at }}</td><td>{{ booking.status|label }}</td><td>{{ booking.notes }}</td></tr>{% else %}<tr><td colspan="5">No bookings yet.</td></tr>{% endfor %}</tbody></table></div></section>
+{% endblock %}

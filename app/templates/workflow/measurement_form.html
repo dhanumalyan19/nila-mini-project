@@ -1,0 +1,4 @@
+{% extends "base.html" %}
+{% from "forms.html" import field %}
+{% block title %}Enter measurement — Nila{% endblock %}
+{% block content %}<p><a href="{{ url_for('workflow.index') }}">Back to review and actions</a></p><h1>Enter a measurement</h1><p class="reading-width">This records a submitted measurement for quality review. It does not determine priority, prescribe an action, or make a safety claim.</p><form method="post" class="narrow-form">{{ form.hidden_tag() }}<fieldset><legend>Measurement record</legend><div class="form-grid">{{ field(form.record_key) }}{{ field(form.building_id) }}{{ field(form.kind) }}{{ field(form.value) }}{{ field(form.started_at) }}{{ field(form.ended_at) }}{{ field(form.instrument) }}{{ field(form.source) }}</div></fieldset>{{ field(form.notes) }}{{ field(form.reason) }}<button type="submit">Submit measurement for review</button></form>{% endblock %}

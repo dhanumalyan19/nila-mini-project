@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Map &amp; coverage — Nila{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='vendor/leaflet/leaflet.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='css/map.css') }}">{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h1>Map &amp; coverage</h1><p>Regional context, building priorities, and gaps in reviewed evidence.</p></div><a href="#evidence-list">Use the evidence list</a></div>
+<form method="get" class="filters">
+  <div class="field"><label for="track">Building assessment track</label><select id="track" name="track"><option value="indoor_radon" {% if data.track == 'indoor_radon' %}selected{% endif %}>Indoor radon</option><option value="regional_radiation" {% if data.track == 'regional_radiation' %}selected{% endif %}>Regional radiation</option></select></div>
+  <div class="field"><label for="provenance">Records to show</label><select id="provenance" name="provenance">{% for value, label in [('all', 'All · real and synthetic labeled'), ('synthetic', 'Synthetic only'), ('real', 'Real only')] %}<option value="{{ value }}" {% if data.provenance == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+  <button type="submit">Apply filters</button>
+</form>
+{% if data.synthetic %}<p class="notice">Synthetic records are included. The Nila demo region is fictional and placed offshore in the South Pacific. These are not findings about real homes.</p>{% endif %}
+{% if data.truncated %}<p class="notice">This view is limited to the first 500 buildings, 500 survey points and 100 survey areas by code. Counts refer only to this view. Use the building register to find other buildings.</p>{% endif %}
+<fieldset class="map-layers"><legend>Map layers</legend>
+  <label><input type="checkbox" id="layer-surveys" checked disabled> Regional survey context</label>
+  <label><input type="checkbox" id="layer-priorities" checked disabled> Building priorities</label>
+  <label><input type="checkbox" id="layer-gaps" disabled> Measurement coverage gaps</label>
+</fieldset>
+<div id="assessment-map" role="region" aria-label="Interactive assessment map" data-source="{{ url_for('maps.data', track=data.track, provenance=data.provenance) }}"><p>Interactive map is loading. The evidence list below is always available.</p></div>
+<p id="map-status" class="map-status" role="status">The evidence list works even when JavaScript or map tiles are unavailable.</p>
+<div class="map-legend" aria-label="Map legend"><span><i class="legend-mark priority" aria-hidden="true">P</i> Priority screening</span><span><i class="legend-mark standard" aria-hidden="true">S</i> Standard screening</span><span><i class="legend-mark unknown" aria-hidden="true">?</i> Unknown / not assessed</span><span><i class="legend-mark gap" aria-hidden="true">G</i> No reviewed measurement</span><span><i class="legend-mark survey-point" aria-hidden="true">R</i> Regional survey point</span></div>
+<p>Grey never means safe. Coverage gaps refer only to <strong>{{ data.track|label }}</strong> building evidence. Regional observations do not fill indoor radon gaps.</p>
+<button type="button" id="load-tiles" class="quiet" disabled>Load optional OpenStreetMap background</button>
+<small class="spaced">Optional background requests share your IP address and viewed map area with OpenStreetMap. No building names or measurement values are sent. For sensitive locations, leave it off. A production pilot needs an approved map provider.</small>
+<noscript><p class="notice">JavaScript is disabled. Use the complete evidence lists below; imports and building records still work.</p></noscript>
+<section id="evidence-list" aria-labelledby="list-heading">
+  <h2 id="list-heading">Building evidence list</h2>
+  <p>{{ data.buildings|length }} buildings · {{ data.gaps }} without a reviewed, submitted measurement in this track · {{ data.unmapped }} without coordinates (listed, not mapped).</p>
+  {% for b in data.buildings %}
+  <details class="evidence-entry"><summary>{{ b.code }} · {{ b.name }} — {{ b.priority|label }}{% if b.synthetic %} · Synthetic{% endif %}{% if b.latitude is none %} · Coordinates unknown{% endif %}</summary>
+    <p><a href="{{ b.url }}">Open building record</a> · {{ b.ward }}</p>
+    <p><strong>Priority reason:</strong> {{ b.reason }}</p><p><strong>Workflow:</strong> {{ b.workflow|label }}</p>
+    <p><strong>Next action:</strong> {{ b.next_action }}</p><p><strong>Missing information:</strong> {{ b.missing|join('; ') if b.missing else 'No listed gaps; qualified assessment is still required.' }}</p>
+    <h3>Building measurements · {{ data.track|label }}</h3>
+    <ul>{% for m in b.evidence %}<li>{{ m.value }} {{ m.unit }} · {{ m.type|label }} · {{ m.quality|label }} · {{ m.status|label }} · {{ 'Synthetic' if m.synthetic else 'Real' }}<small>Source: {{ m.source }} · Start: {{ m.date }}</small></li>{% else %}<li>No building measurements in this track. Evidence is unknown.</li>{% endfor %}</ul>
+    <h3>Regional context — not a building measurement</h3>
+    <ul>{% for context in b.contexts %}<li>{{ context.code }} · {{ context.status|label }} · {{ 'Synthetic' if context.synthetic else 'Real' }}<small>Source: {{ context.source }} · Date: {{ context.date }}</small></li>{% else %}<li>No survey-area association.</li>{% endfor %}</ul>
+  </details>
+  {% else %}<p class="empty">No buildings match these filters. Change the filters or register a building.</p>{% endfor %}
+</section>
+<section aria-labelledby="survey-heading"><h2 id="survey-heading">Regional survey evidence list</h2>
+  <p>Polygon associations supply context only. Every overlapping polygon is retained; no nearest-reading assignment is used.</p>
+  {% for area in data.areas %}<details class="evidence-entry"><summary>{{ area.code }} · {{ area.name }} · {{ 'Synthetic' if area.synthetic else 'Real' }}</summary>
+    <p>{{ area.context }}</p><p>Source: {{ area.source }} · Date: {{ area.date }} · {{ area.quality|label }}</p>
+    {% if not area.geometry %}<p class="errors">Geometry is invalid or unsupported; this area is listed but not drawn.</p>{% endif %}
+    <ul>{% for m in area.evidence %}<li>{{ m.value }} {{ m.unit }} · {{ m.type|label }} · {{ m.quality|label }} · {{ m.status|label }} · {{ 'Synthetic' if m.synthetic else 'Real' }}<small>Source: {{ m.source }} · Start: {{ m.date }}</small></li>{% else %}<li>No survey-point measurements available.</li>{% endfor %}</ul>
+  </details>{% else %}<p class="empty">No survey areas match these filters. Import GeoJSON to add regional context.</p>{% endfor %}
+</section>
+<section aria-labelledby="points-heading"><h2 id="points-heading">Survey points</h2><p>Includes points without a named survey area. These observations remain separate from building measurements.</p>
+{% for point in data.points %}<details class="evidence-entry"><summary>{{ point.code }} · {{ 'Synthetic' if point.synthetic else 'Real' }}</summary>
+  <p>Latitude: {{ point.latitude }} · Longitude: {{ point.longitude }}</p>
+  <ul>{% for m in point.evidence %}<li>{{ m.value }} {{ m.unit }} · {{ m.type|label }} · {{ m.quality|label }} · {{ m.status|label }}<small>Source: {{ m.source }} · Start: {{ m.date }} · {{ 'Synthetic' if m.synthetic else 'Real' }}</small></li>{% else %}<li>No survey-point measurements. Source/date unknown.</li>{% endfor %}</ul>
+</details>{% else %}<p class="empty">No survey points match these filters.</p>{% endfor %}</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='vendor/leaflet/leaflet.js') }}" defer></script><script src="{{ url_for('static', filename='js/map.js') }}" defer></script>{% endblock %}

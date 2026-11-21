@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% from 'forms.html' import field %}
+{% block title %}{{ 'Edit' if building else 'Register' }} building — Nila{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('buildings.detail', building_id=building.id) if building else url_for('buildings.index') }}">Back to {{ 'building' if building else 'register' }}</a></p>
+<div class="narrow-form"><h1>{{ 'Edit building' if building else 'Register building' }}</h1>
+<p>Leave optional fields blank when unknown. Building ID, name, ward and a reason are required.</p>
+{% if building %}<p class="muted">Changing coordinates clears previous survey-area associations so they can be checked again. Original survey records are retained.</p>{% endif %}
+{% if conflict %}<p class="notice errors" role="alert">Another officer changed this record. Your changes were not saved. Open the latest building record and review it before submitting a new edit.</p>{% endif %}
+{% if form.errors %}<div class="notice errors" role="alert"><p>Please correct the highlighted fields.</p><ul>{% for name, errors in form.errors.items() %}{% for error in errors %}<li>{{ form[name].label.text }}: {{ error }}</li>{% endfor %}{% endfor %}</ul></div>{% endif %}
+{% if not form.ward_id.choices %}<p class="notice">No wards exist. Add one using the create-ward terminal command, then reload this form.</p>{% endif %}
+<form method="post" novalidate>
+  {{ form.hidden_tag() }}
+  <fieldset><legend>Identity and location</legend><div class="form-grid">{{ field(form.code) }}{{ field(form.name) }}{{ field(form.ward_id) }}{{ field(form.address) }}{{ field(form.latitude, 'Decimal degrees; both coordinates or neither.') }}{{ field(form.longitude, 'Unknown coordinates do not receive automatic survey context.') }}</div></fieldset>
+  <fieldset><legend>Building characteristics</legend><div class="form-grid">{{ field(form.building_use) }}{{ field(form.construction_year) }}{{ field(form.occupied_floors) }}{{ field(form.ground_contact_rooms) }}{{ field(form.ventilation) }}{{ field(form.approximate_occupancy) }}{{ field(form.hours_of_use_per_day) }}</div></fieldset>
+  <fieldset><legend>Record notes and provenance</legend>
+    {{ field(form.private_notes, 'Visible only to signed-in officers.') }}
+    {% if building %}<p>Data origin: <strong>{{ 'Synthetic demo' if building.is_synthetic else 'Officer-entered' }}</strong>. This cannot be changed here.</p>{% if building.is_synthetic %}<input type="hidden" name="is_synthetic" value="y">{% endif %}
+    {% else %}<div class="checkbox">{{ form.is_synthetic() }}{{ form.is_synthetic.label }}</div>{% endif %}
+    {{ field(form.change_reason, 'Saved in the audit history alongside this edit.') }}
+  </fieldset>
+  <div class="actions"><button type="submit" {% if not form.ward_id.choices or conflict %}disabled{% endif %}>{{ 'Save changes' if building else 'Register building' }}</button><a href="{{ url_for('buildings.detail', building_id=building.id) if building else url_for('buildings.index') }}">Cancel</a></div>
+</form></div>
+{% endblock %}

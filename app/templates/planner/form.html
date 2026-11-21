@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% from "forms.html" import field %}
+{% block title %}Create campaign — Nila{% endblock %}
+{% block content %}
+<h1>Create an assessment campaign</h1>
+<p class="reading-width">A campaign records planning capacity and local queue weights. It does not calculate a radiation threshold or change a building priority.</p>
+<form method="post" class="narrow-form">{{ form.hidden_tag() }}
+  <fieldset><legend>Campaign scope</legend><div class="form-grid">{{ field(form.code) }}{{ field(form.name) }}{{ field(form.track) }}{{ field(form.available_slots, 'The maximum number of assessment opportunities before staff/equipment limits.') }}{{ field(form.starts_on) }}{{ field(form.ends_on) }}{{ field(form.staff_slots, 'Leave blank if not yet confirmed.') }}{{ field(form.equipment_slots, 'Leave blank if not yet confirmed.') }}</div></fieldset>
+  <fieldset><legend>Allocation settings</legend><p>These weights distribute remaining capacity after required follow-up. They are a planning choice, not a health or risk score.</p><div class="form-grid">{{ field(form.follow_up_weight) }}{{ field(form.priority_weight) }}{{ field(form.coverage_weight) }}</div></fieldset>
+  {{ field(form.notes) }}{{ field(form.reason) }}<button type="submit">Create campaign</button>
+</form>
+{% endblock %}

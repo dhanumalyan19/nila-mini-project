@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Assessment planner — Nila{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h1>Assessment planner</h1><p>Create a reproducible allocation plan; a selected slot is not a resolved assessment.</p></div><a class="button" href="{{ url_for('planner.create') }}">Create campaign</a></div>
+<p class="notice">Planning weights are local allocation settings, not scientific thresholds. Required follow-up is considered before weighted screening and coverage-gap queues. All selections retain source evidence and a recorded random seed.</p>
+<div class="table-scroll" role="region" aria-label="Assessment campaigns" tabindex="0"><table>
+<thead><tr><th>Campaign</th><th>Track / dates</th><th>Capacity limits</th><th>Latest plan</th><th>Data origin</th></tr></thead>
+<tbody>{% for campaign in campaigns %}{% set plan = latest[campaign.id] %}<tr>
+  <td><a href="{{ url_for('planner.detail', campaign_id=campaign.id) }}">{{ campaign.name }}</a><small>{{ campaign.code }}</small></td>
+  <td>{{ campaign.track|label }}<small>{{ campaign.starts_on }} to {{ campaign.ends_on }}</small></td>
+  <td>{{ campaign.available_slots }} nominal<small>Staff: {{ campaign.staff_slots|known }} · Equipment: {{ campaign.equipment_slots|known }}</small></td>
+  <td>{% if plan %}<a href="{{ url_for('planner.plan', plan_id=plan.id) }}">Plan {{ plan.id }}</a><small>{{ plan.selected_count }} selected · {{ plan.unmet_demand }} unmet{% if plan.deadline_feasible is false %} · deadline escalation{% endif %}</small>{% else %}No plan generated{% endif %}</td>
+  <td>{{ 'Synthetic fixture' if campaign.is_synthetic else 'Officer record' }}</td>
+</tr>{% else %}<tr><td colspan="5">No campaigns yet. Create one, add explicit eligible cases, then generate a plan.</td></tr>{% endfor %}</tbody>
+</table></div>
+<p class="actions"><a href="{{ url_for('planner.equipment') }}">Manage equipment bookings</a></p>
+{% endblock %}

@@ -1,0 +1,2 @@
+code,area_code,latitude,longitude,notes,is_synthetic
+IMPORT-DEMO-POINT-1,IMPORT-DEMO-AREA-1,-49.995000,-139.995000,Fictional instrument location for CSV demonstration only.,true

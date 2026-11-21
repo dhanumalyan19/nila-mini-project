@@ -1,0 +1,4 @@
+{% extends "base.html" %}
+{% from "forms.html" import field %}
+{% block title %}Assessment request — Nila{% endblock %}
+{% block content %}<p><a href="{{ url_for('public.localities') }}">Back to locality information</a></p><h1>Submit an assessment request</h1><p class="reading-width">This sends a private request for qualified officer review. It does not report an emergency, diagnose exposure, or guarantee a measurement.</p><form method="post" class="narrow-form">{{ form.hidden_tag() }}{{ field(form.locality) }}{{ field(form.contact, 'Optional. This is stored privately for officer follow-up and is never shown in public lookup.') }}{{ field(form.request_text) }}<div class="sr-only" aria-hidden="true">{{ form.website }}</div><button type="submit">Send private request</button></form>{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% from "forms.html" import field %}
+{% block title %}Import preview — Nila{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h1>{{ 'Import saved' if batch.status == 'committed' else 'Check your import' }}</h1><p>Import {{ batch.id }} · {{ batch.kind|label }} · {{ batch.created_at }} UTC</p></div><a href="{{ url_for('imports.index') }}">Upload another file</a></div>
+{% if message %}<p class="notice errors" role="alert">{{ message }}</p>{% endif %}
+{% if batch.status == 'committed' %}
+<p class="notice success">{{ batch.result.count }} records saved; {{ batch.result.skipped }} invalid records skipped. {{ batch.result.associations }} geographic context links added. Nothing was marked reviewed or safe.</p>
+{% else %}
+<p class="notice">{{ valid }} valid records · {{ batch.payload|length - valid }} records need correction. <strong>No evidence has been saved yet.</strong> This private preview expires at {{ batch.expires_at }} UTC.</p>
+{% endif %}
+<div class="table-scroll" role="region" aria-label="Import validation results" tabindex="0"><table>
+  <thead><tr><th>{{ 'Feature' if batch.kind == 'areas' else 'CSV line (end of record)' }}</th><th>Record ID</th><th>Validation result</th></tr></thead>
+  <tbody>{% for row in batch.payload %}<tr><td>{{ row.row }}</td><td class="preserve">{{ row.label }}</td><td>
+    {% if row.error %}<span class="errors">Needs correction: {{ row.error }}</span>
+    {% else %}<strong>{{ 'Saved' if batch.status == 'committed' else 'Valid — ready to save' }}</strong>
+    <details><summary>Inspect values</summary><dl class="import-values">{% for key, value in row.raw.items() %}<div><dt>{{ key|label }}</dt><dd class="preserve">{% if key == 'geometry' %}{{ value.type }} · validated coordinates{% else %}{{ value|known }}{% endif %}</dd></div>{% endfor %}</dl></details>{% endif %}
+  </td></tr>{% endfor %}</tbody>
+</table></div>
+{% if batch.status == 'preview' %}
+  {% if expired %}<p class="notice">This preview expired. Upload the file again to recheck current data.</p>
+  {% elif valid %}
+  <section aria-labelledby="commit-heading" class="narrow-form"><h2 id="commit-heading">Save the {{ valid }} valid records</h2>
+    <p>Rows marked “Needs correction” will be skipped. Correct those rows in a separate file and preview again. Imported measurements and areas remain unreviewed.</p>
+    <form method="post" action="{{ url_for('imports.commit', batch_id=batch.id) }}">
+      {{ form.hidden_tag() }}{{ field(form.reason) }}
+      <div class="checkbox">{{ form.confirm() }}{{ form.confirm.label }}</div>
+      {% for error in form.confirm.errors %}<p class="errors">{{ error }}</p>{% endfor %}
+      <button type="submit">Save {{ valid }} valid records</button>
+    </form>
+  </section>
+  {% else %}<p class="notice errors">No valid records to save. Correct the errors and upload your file again.</p>{% endif %}
+{% else %}<p class="actions"><a class="button" href="{{ url_for('maps.index') }}">View map &amp; coverage</a><a href="{{ url_for('buildings.index') }}">Open building records</a></p>{% endif %}
+{% endblock %}

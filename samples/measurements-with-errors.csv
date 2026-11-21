@@ -1,0 +1,4 @@
+record_key,building_code,survey_location_code,track,measurement_type,unit,value,started_at,ended_at,duration_seconds,instrument,source,record_status,notes,is_synthetic
+IMPORT-DEMO-ERROR-UNIT,NILA-DEMO-B003,,indoor_radon,indoor_radon_concentration,uSv/h,10,2026-09-01T09:00:00Z,,300,Fictional meter,Nila error demonstration,submitted,Deliberately incompatible unit.,true
+IMPORT-DEMO-ERROR-VALUE,NILA-DEMO-B003,,indoor_radon,indoor_radon_concentration,Bq/m3,NaN,2026-09-01T09:00:00Z,,300,Fictional meter,Nila error demonstration,submitted,Deliberately nonfinite value.,true
+IMPORT-DEMO-ERROR-VALID,NILA-DEMO-B003,,indoor_radon,indoor_radon_concentration,Bq/m3,,,,,,Nila error demonstration,incomplete,Valid synthetic incomplete record among invalid rows.,true

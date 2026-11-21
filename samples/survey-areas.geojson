@@ -1,0 +1,15 @@
+{
+  "type": "FeatureCollection",
+  "features": [{
+    "type": "Feature",
+    "properties": {
+      "code": "IMPORT-DEMO-AREA-1",
+      "name": "Fictional import survey area",
+      "geological_context": "Synthetic training context only. No real geological survey was obtained.",
+      "source": "Nila synthetic import exercise",
+      "observed_on": "2026-09-01",
+      "is_synthetic": true
+    },
+    "geometry": {"type": "Polygon", "coordinates": [[[-140.01, -50.01], [-139.97, -50.01], [-139.97, -49.97], [-140.01, -49.97], [-140.01, -50.01]]]}
+  }]
+}

@@ -1,0 +1,30 @@
+#assessment-map { height: 450px; background: #e5eeec; border: 1px solid var(--line); z-index: 0; }
+#assessment-map > p { padding: 1.5rem; }
+.map-layers { display: flex; flex-wrap: wrap; gap: .8rem 1.5rem; margin: 1.25rem 0; }
+.map-layers legend { font-size: 1rem; margin-bottom: .5rem; }
+.map-layers label { font-weight: 400; margin: 0; }
+.map-layers input { accent-color: var(--link); }
+.map-status { font-size: .9rem; margin-top: .5rem; color: var(--muted); }
+.map-legend { display: flex; flex-wrap: wrap; gap: .6rem 1.5rem; margin-block: 1rem; font-size: .9rem; }
+.map-legend span { display: flex; gap: .5rem; align-items: center; }
+.legend-mark, .building-marker { display: inline-grid; place-items: center; background: #fff; border: 2px solid currentColor; width: 26px; height: 26px; font-style: normal; font-weight: 700; font-size: 14px; border-radius: 50%; line-height: 1; }
+.priority { color: #942328; }
+.standard { color: #125e69; }
+.unknown { color: #536169; }
+.gap { color: #825014; border-radius: 2px; }
+.survey-point { color: #3d467c; border-radius: 2px; }
+.gap-marker { background: transparent; }
+.gap-marker span { display: block; width: 38px; height: 38px; border: 2px dashed #825014; border-radius: 2px; color: #693e0c; font-size: 12px; font-weight: 700; text-align: right; line-height: 1; }
+.evidence-entry { max-width: none; border-bottom: 1px solid var(--line); margin: 0; padding-block: .35rem; }
+.evidence-entry > :not(summary) { max-width: 75ch; }
+.evidence-entry summary { padding-block: .75rem; }
+.map-popup { max-height: 320px; overflow-y: auto; overflow-wrap: anywhere; font-family: "Segoe UI", sans-serif; color: var(--ink); }
+.map-popup p { margin-block: .6rem; }
+.map-popup h3 { margin-top: .8rem; }
+.leaflet-container a { color: var(--link); }
+.leaflet-control-attribution { max-width: 100%; }
+@media (max-width: 700px) {
+  #assessment-map { height: 380px; }
+  .map-layers { flex-direction: column; }
+  #load-tiles { width: 100%; }
+}

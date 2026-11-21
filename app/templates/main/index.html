@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Nila is ready for setup</h1>
+  <p>Officer login and building records are ready. Complete the local database setup, create an officer account, then sign in to open the building register.</p>
+  <p><a class="button" href="{{ url_for('auth.login') }}">Officer sign in</a></p>
+  <section aria-labelledby="status-heading">
+    <h2 id="status-heading">Foundation status</h2>
+    <dl>
+      <div><dt>Application</dt><dd>Running · Phase 8</dd></div>
+      <div><dt>Database configuration</dt><dd>{% if config.NILA_DATABASE_CONFIGURED %}Provided · connection not yet checked{% else %}Setup needed{% endif %}</dd></div>
+      <div><dt>Session key</dt><dd>{% if config.NILA_EPHEMERAL_SECRET %}Temporary development key{% else %}Configured{% endif %}</dd></div>
+      <div><dt>Officer record pages</dt><dd>Available after sign-in</dd></div>
+    </dl>
+    <p>To check the MySQL connection, run this inside the <code>nila</code> folder:</p>
+    <pre><code>.\.venv\Scripts\python.exe -m flask --app app db-check</code></pre>
+    <p>Setup instructions are in <code>README.md</code>. Store your credentials locally in <code>.env</code>.</p>
+  </section>
+  <section aria-labelledby="evidence-heading">
+    <h2 id="evidence-heading">Two separate assessment tracks</h2>
+    <p><strong>Regional radiation:</strong> geological context and radiometric survey observations.</p>
+    <p><strong>Indoor radon:</strong> building characteristics, indoor measurements and follow-up.</p>
+    <p>Regional readings will not be converted into indoor radon concentrations. Missing information remains unknown.</p>
+  </section>
+{% endblock %}

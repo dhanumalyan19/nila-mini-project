@@ -1,0 +1,4 @@
+{% extends "base.html" %}
+{% from "forms.html" import field %}
+{% block title %}Follow-up evidence — Nila{% endblock %}
+{% block content %}<p><a href="{{ url_for('workflow.index') }}">Back to review and actions</a></p><h1>Review follow-up evidence</h1><p>Action {{ action.code }} for case {{ case.id }} is {{ action.status|label }}. A reported completion is not an outcome. Record evidence and a separate qualified-review decision.</p><form method="post" class="narrow-form">{{ form.hidden_tag() }}{{ field(form.measurement_id) }}{{ field(form.decision) }}{{ field(form.evidence_notes) }}{{ field(form.rationale) }}<button type="submit">Record reviewer decision</button></form>{% endblock %}

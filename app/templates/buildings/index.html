@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Building register — Nila{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h1>Building register</h1><p class="muted">Find a building, review its evidence, and record what needs to happen next.</p></div><a class="button" href="{{ url_for('buildings.create') }}">Register building</a></div>
+<form class="filters" method="get">
+  <div class="field"><label for="q">Search ID, name or location</label><input id="q" name="q" type="search" value="{{ q }}" maxlength="160" placeholder="e.g. NILA-DEMO-B001"></div>
+  <div class="field"><label for="ward">Ward</label><select id="ward" name="ward"><option value="">All wards</option>{% for ward in wards %}<option value="{{ ward.id }}" {% if ward_id == ward.id %}selected{% endif %}>{{ ward.name }}</option>{% endfor %}</select></div>
+  <button type="submit">Search</button><a href="{{ url_for('buildings.index') }}">Clear filters</a>
+</form>
+<p>{{ page.total }} {{ 'building' if page.total == 1 else 'buildings' }}{% if q or ward_id %} matching your filters{% endif %} · Unknown means information has not been established.</p>
+{% if page.items %}
+<div class="table-scroll" role="region" aria-label="Building results" tabindex="0"><table><thead><tr><th scope="col">Building</th><th scope="col">Ward / location</th><th scope="col">Use</th><th scope="col">Occupancy</th><th scope="col">Data origin</th></tr></thead><tbody>
+{% for building in page.items %}<tr>
+  <td><a href="{{ url_for('buildings.detail', building_id=building.id) }}">{{ building.name }}</a><small>{{ building.code }}</small></td>
+  <td>{{ building.ward.name }}<small>{{ building.address|known }}</small></td><td>{{ building.building_use|label }}</td><td>{{ building.approximate_occupancy|known }}</td><td><span class="tag">{{ 'Synthetic demo' if building.is_synthetic else 'Officer-entered' }}</span></td>
+</tr>{% endfor %}</tbody></table></div>
+<nav class="pagination" aria-label="Result pages">{% if page.has_prev %}<a href="{{ url_for('buildings.index', q=q, ward=ward_id or '', page=page.prev_num) }}">Previous</a>{% endif %}<span>Page {{ page.page }} of {{ page.pages }}</span>{% if page.has_next %}<a href="{{ url_for('buildings.index', q=q, ward=ward_id or '', page=page.next_num) }}">Next</a>{% endif %}</nav>
+{% else %}<div class="empty"><h2>{{ 'No matching buildings' if q or ward_id else 'No buildings registered yet' }}</h2><p>{{ 'Try another ID, name or ward, or clear the filters.' if q or ward_id else 'Register the first building, or load the fictional dataset with the local seed-demo command.' }}</p>{% if not wards %}<p>No wards exist yet. The local operator can add one using <code>flask --app app create-ward</code>.</p>{% endif %}</div>{% endif %}
+{% endblock %}

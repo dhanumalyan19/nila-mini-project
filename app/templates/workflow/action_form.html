@@ -1,0 +1,4 @@
+{% extends "base.html" %}
+{% from "forms.html" import field %}
+{% block title %}Assign action — Nila{% endblock %}
+{% block content %}<p><a href="{{ url_for('workflow.index') }}">Back to review and actions</a></p><h1>Assign an action</h1><p class="reading-width">Only a case that an officer has moved to action-required can receive an action. A guidance entry is optional and is never an automatic prescription.</p><form method="post" class="narrow-form">{{ form.hidden_tag() }}<div class="form-grid">{{ field(form.case_id) }}{{ field(form.guidance_entry_id) }}{{ field(form.assigned_to_id) }}{{ field(form.due_at) }}</div>{{ field(form.description) }}{{ field(form.reason) }}<button type="submit">Assign action</button></form>{% endblock %}
